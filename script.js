@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (matrix[row][col] === 0) {
         matrix[row][col] = 2;
         gridItems[row * 4 + col].textContent = 2;
+        gridItems[row * 4 + col].setAttribute("data-value", 2);
         placed++;
       }
     }
@@ -42,7 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateGrid() {
     for (let i = 0; i < 16; i++) {
-      gridItems[i].textContent = matrix[Math.floor(i / 4)][i % 4] || "";
+      const value = matrix[Math.floor(i / 4)][i % 4];
+      gridItems[i].textContent = value || "";
+      gridItems[i].setAttribute("data-value", value || 0);
     }
   }
 
@@ -124,7 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (emptyCells.length > 0) {
       let [row, col] = emptyCells[getRandomInt(0, emptyCells.length - 1)];
-      matrix[row][col] = options[getRandomInt(0, options.length - 1)];
+      const newValue = options[getRandomInt(0, options.length - 1)];
+      matrix[row][col] = newValue;
+      gridItems[row * 4 + col].setAttribute("data-value", newValue);
     }
   }
 
