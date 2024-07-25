@@ -35,6 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
         placed++;
       }
     }
+    score = 0;
+    score_val.textContent = score;
+    result.textContent = "";
   }
 
   function updateGrid() {
@@ -139,6 +142,35 @@ document.addEventListener("DOMContentLoaded", () => {
       case "ArrowDown":
         moveDown();
         break;
+    }
+    checkGameOver();
+  }
+
+  function checkGameOver() {
+    let emptyCells = [];
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (matrix[i][j] === 0) {
+          emptyCells.push([i, j]);
+        }
+      }
+    }
+    if (emptyCells.length === 0) {
+      let isGameOver = true;
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (i < 3 && matrix[i][j] === matrix[i + 1][j]) {
+            isGameOver = false;
+          }
+          if (j < 3 && matrix[i][j] === matrix[i][j + 1]) {
+            isGameOver = false;
+          }
+        }
+      }
+      if (isGameOver) {
+        result.textContent = "Game Over";
+        result.style.color = "red";
+      }
     }
   }
 
