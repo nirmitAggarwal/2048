@@ -17,10 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const score_val = document.querySelector(".score-value");
   const result = document.querySelector(".result");
 
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
+  // Initialize the game
   function initializeGame() {
     matrix = Array(4)
       .fill(null)
@@ -39,6 +36,15 @@ document.addEventListener("DOMContentLoaded", () => {
     score = 0;
     score_val.textContent = score;
     result.textContent = "";
+  }
+
+  // Save current matrix state
+  function saveState() {
+    prevMatrix = matrix.map((row) => row.slice());
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   function updateGrid() {
@@ -69,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function moveLeft() {
     let moved = false;
+    saveState();
     for (let i = 0; i < 4; i++) {
       let originalRow = matrix[i].slice();
       matrix[i] = shiftLeft(matrix[i]);
@@ -149,6 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
       case "ArrowDown":
         moveDown();
         break;
+      case "u": // 'u' key for undo
+        undo();
+        break;
     }
   }
 
@@ -191,6 +201,13 @@ document.addEventListener("DOMContentLoaded", () => {
         result.style.color = "red";
         document.removeEventListener("keydown", handleKeyPress); // Disable further moves
       }
+    }
+  }
+
+  function undo() {
+    if (prevMatrix) {
+      matrix = prevMatrix;
+      updateGrid();
     }
   }
 
