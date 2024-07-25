@@ -80,6 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
       generateNewBlock();
       updateGrid();
       score_val.textContent = score;
+      checkWin();
+      checkGameOver();
     }
   }
 
@@ -148,8 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
         moveDown();
         break;
     }
-    checkWin();
-    checkGameOver();
   }
 
   function checkWin() {
