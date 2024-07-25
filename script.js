@@ -148,7 +148,21 @@ document.addEventListener("DOMContentLoaded", () => {
         moveDown();
         break;
     }
+    checkWin();
     checkGameOver();
+  }
+
+  function checkWin() {
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (matrix[i][j] === 2048) {
+          result.textContent = "You Win!";
+          result.style.color = "green";
+          document.removeEventListener("keydown", handleKeyPress); // Disable further moves
+          return;
+        }
+      }
+    }
   }
 
   function checkGameOver() {
@@ -175,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isGameOver) {
         result.textContent = "Game Over";
         result.style.color = "red";
+        document.removeEventListener("keydown", handleKeyPress); // Disable further moves
       }
     }
   }
