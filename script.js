@@ -1,217 +1,328 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const grid = document.querySelector(".grid");
-  const gridItems = [];
+// Filename: script.js
+// Get the game grid
+const gridItems = [...document.querySelectorAll(".grid-item")];
+const score_val = document.querySelector(".score-value");
+const result = document.querySelector(".result");
+let score = 0;
+let moves = 0;
+let moveFactor = 4;
+let options = [2, 4, 8, 2, 4, 8, 2, 2, 4, 4, 2, 8, 2, 2, 4, 4, 2];
+let matrix = [];
+let prevMatrix;
 
-  // Create 16 grid items
-  for (let i = 0; i < 16; i++) {
-    const gridItem = document.createElement("div");
-    gridItem.classList.add("grid-item");
-    grid.appendChild(gridItem);
-    gridItems.push(gridItem);
+let colors = [
+  "#caf0f8",
+  "#90e0ef",
+  "#00b4d8",
+  "#0077b6",
+  "#03045e",
+  "#023047",
+  "#fca311",
+  "#14213d",
+  "#e63946",
+  "#ffc300",
+  "#6a040f",
+  "#000000",
+];
+
+// Create the starting game grid.
+let row = [];
+for (let index = 1; index < gridItems.length + 1; index++) {
+  if (index % 4 === 0) {
+    let item = gridItems[index - 1];
+    item.firstElementChild.innerText = "";
+    row.push(item);
+    matrix.push(row);
+    row = [];
+  } else {
+    let item = gridItems[index - 1];
+    item.firstElementChild.innerText = "";
+    row.push(item);
+  }
+}
+
+// Assign any two grid blocks the value of 2
+const rowIdx = Math.floor(Math.random() * 4);
+const colIdx = Math.floor(Math.random() * 4);
+let rowIdx2 = Math.floor(Math.random() * 4);
+let colIdx2 = Math.floor(Math.random() * 4);
+
+while (rowIdx === rowIdx2 && colIdx === colIdx2) {
+  rowIdx2 = Math.floor(Math.random() * 4);
+  colIdx2 = Math.floor(Math.random() * 4);
+}
+
+
+matrix[rowIdx][colIdx].firstElementChild.textContent = 2;
+matrix[rowIdx2][colIdx2].firstElementChild.textContent = 2;
+
+let availIndexes = updateAvailIndexes();
+
+updateColors();
+
+// Make web page able to listen to keydown event
+document.addEventListener("keydown", moveBlocks);
+
+// Method to extract columns from an 2D array.
+const arrayColumn = (arr, n) => arr.map((x) => x[n]);
+
+function moveBlocks(e) {
+  if (
+    e.key !== "ArrowLeft" &&
+    e.key !== "ArrowRight" &&
+    e.key !== "ArrowUp" &&
+    e.key !== "ArrowDown"
+  ) {
+    return;
   }
 
-  let matrix = [];
-  let prevMatrix;
-  const options = [2, 4, 8];
-  let score = 0;
-  const score_val = document.querySelector(".score-value");
-  const result = document.querySelector(".result");
+  moves++;
+  matrixVals = getCurrentMatrixValues();
+  prevMatrix = matrixVals;
 
-  // Initialize the game
-  function initializeGame() {
-    matrix = Array(4)
-      .fill(null)
-      .map(() => Array(4).fill(0));
-    let placed = 0;
-    while (placed < 2) {
-      let row = getRandomInt(0, 3);
-      let col = getRandomInt(0, 3);
-      if (matrix[row][col] === 0) {
-        matrix[row][col] = 2;
-        gridItems[row * 4 + col].textContent = 2;
-        gridItems[row * 4 + col].setAttribute("data-value", 2);
-        placed++;
-      }
-    }
-    score = 0;
-    score_val.textContent = score;
-    result.textContent = "";
+  let col1 = arrayColumn(matrix, 0);
+  let col2 = arrayColumn(matrix, 1);
+  let col3 = arrayColumn(matrix, 2);
+  let col4 = arrayColumn(matrix, 3);
+  let row1 = matrix[0];
+  let row2 = matrix[1];
+  let row3 = matrix[2];
+  let row4 = matrix[3];
+
+  if (e.key === "ArrowLeft") {
+    moveLeft(row1);
+    moveLeft(row2);
+    moveLeft(row3);
+    moveLeft(row4);
+  }
+  if (e.key === "ArrowRight") {
+    moveRight(row1);
+    moveRight(row2);
+    moveRight(row3);
+    moveRight(row4);
+  }
+  if (e.key === "ArrowUp") {
+    moveLeft(col1);
+    moveLeft(col2);
+    moveLeft(col3);
+    moveLeft(col4);
+  }
+  if (e.key === "ArrowDown") {
+    moveRight(col1);
+    moveRight(col2);
+    moveRight(col3);
+    moveRight(col4);
   }
 
-  // Save current matrix state
-  function saveState() {
-    prevMatrix = matrix.map((row) => row.slice());
+  matrixVals = getCurrentMatrixValues();
+  availIndexes = updateAvailIndexes();
+  updateColors();
+
+  let check = checkMatrixEquality(prevMatrix, matrixVals);
+
+  if (availIndexes.length === 0 && check === true) {
+    gameOver("loose");
   }
 
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  if (moves % moveFactor === 0) {
+    generateNewBlock();
   }
+}
 
-  function updateGrid() {
-    for (let i = 0; i < 16; i++) {
-      const value = matrix[Math.floor(i / 4)][i % 4];
-      gridItems[i].textContent = value || "";
-      gridItems[i].setAttribute("data-value", value || 0);
-    }
-  }
+setInterval(() => {
+  availIndexes = updateAvailIndexes();
+  generateNewBlock();
+}, 8000);
 
-  function shiftLeft(row) {
-    let filtered = row.filter((value) => value !== 0);
-    let newRow = [];
-    for (let i = 0; i < filtered.length; i++) {
-      if (filtered[i] === filtered[i + 1]) {
-        newRow.push(filtered[i] * 2);
-        score += filtered[i] * 2;
-        i++;
-      } else {
-        newRow.push(filtered[i]);
-      }
-    }
-    while (newRow.length < 4) {
-      newRow.push(0);
-    }
-    return newRow;
-  }
+setTimeout(() => {
+  options.push(16);
+  setTimeout(() => {
+    options.push(16);
+    options.push(32);
+    setTimeout(() => {
+      options.push(16);
+      options.push(32);
+      options.push(64);
+    }, 40000);
+  }, 18000);
+}, 120000);
 
-  function moveLeft() {
-    let moved = false;
-    saveState();
-    for (let i = 0; i < 4; i++) {
-      let originalRow = matrix[i].slice();
-      matrix[i] = shiftLeft(matrix[i]);
-      if (originalRow.toString() !== matrix[i].toString()) {
-        moved = true;
-      }
-    }
-    if (moved) {
-      generateNewBlock();
-      updateGrid();
-      score_val.textContent = score;
-      checkWin();
-      checkGameOver();
+function getCurrentMatrixValues() {
+  let gridItems = [...document.querySelectorAll(".grid-item")];
+  let matrix_grid = [];
+  let row = [];
+  for (let index = 1; index < gridItems.length + 1; index++) {
+    if (index % 4 === 0) {
+      let item = gridItems[index - 1];
+      row.push(item.firstElementChild.innerText);
+      matrix_grid.push(row);
+      row = [];
+    } else {
+      let item = gridItems[index - 1];
+      row.push(item.firstElementChild.innerText);
     }
   }
+  return matrix_grid;
+}
 
-  function moveRight() {
-    for (let i = 0; i < 4; i++) {
-      matrix[i] = matrix[i].reverse();
-    }
-    moveLeft();
-    for (let i = 0; i < 4; i++) {
-      matrix[i] = matrix[i].reverse();
-    }
-  }
-
-  function moveUp() {
-    matrix = transpose(matrix);
-    moveLeft();
-    matrix = transpose(matrix);
-  }
-
-  function moveDown() {
-    matrix = transpose(matrix);
-    moveRight();
-    matrix = transpose(matrix);
-  }
-
-  function transpose(matrix) {
-    let newMatrix = [];
-    for (let i = 0; i < 4; i++) {
-      newMatrix[i] = [];
-      for (let j = 0; j < 4; j++) {
-        newMatrix[i][j] = matrix[j][i];
-      }
-    }
-    return newMatrix;
-  }
-
-  function generateNewBlock() {
-    let emptyCells = [];
-    for (let i = 0; i < 4; i++) {
-      for (let j = 0; j < 4; j++) {
-        if (matrix[i][j] === 0) {
-          emptyCells.push([i, j]);
-        }
-      }
-    }
-    if (emptyCells.length > 0) {
-      let [row, col] = emptyCells[getRandomInt(0, emptyCells.length - 1)];
-      const newValue = options[getRandomInt(0, options.length - 1)];
-      matrix[row][col] = newValue;
-      gridItems[row * 4 + col].setAttribute("data-value", newValue);
-    }
-  }
-
-  function handleKeyPress(e) {
-    switch (e.key) {
-      case "ArrowLeft":
-        moveLeft();
-        break;
-      case "ArrowRight":
-        moveRight();
-        break;
-      case "ArrowUp":
-        moveUp();
-        break;
-      case "ArrowDown":
-        moveDown();
-        break;
-      case "u": // 'u' key for undo
-        undo();
-        break;
-    }
-  }
-
-  function checkWin() {
-    for (let i = 0; i < 4; i++) {
-      for (let j = 0; j < 4; j++) {
-        if (matrix[i][j] === 2048) {
-          result.textContent = "You Win!";
-          result.style.color = "green";
-          document.removeEventListener("keydown", handleKeyPress); // Disable further moves
-          return;
-        }
-      }
-    }
-  }
-
-  function checkGameOver() {
-    let emptyCells = [];
-    for (let i = 0; i < 4; i++) {
-      for (let j = 0; j < 4; j++) {
-        if (matrix[i][j] === 0) {
-          emptyCells.push([i, j]);
-        }
-      }
-    }
-    if (emptyCells.length === 0) {
-      let isGameOver = true;
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-          if (i < 3 && matrix[i][j] === matrix[i + 1][j]) {
-            isGameOver = false;
-          }
-          if (j < 3 && matrix[i][j] === matrix[i][j + 1]) {
-            isGameOver = false;
-          }
-        }
-      }
-      if (isGameOver) {
-        result.textContent = "Game Over";
-        result.style.color = "red";
-        document.removeEventListener("keydown", handleKeyPress); // Disable further moves
+function shiftLeft(arr) {
+  for (let i = 0; i < 4; i++) {
+    for (let i = 1; i < 4; i++) {
+      let currElement = arr[i].firstElementChild;
+      let prevElement = arr[i - 1].firstElementChild;
+      if (prevElement.innerText == 0) {
+        prevElement.innerText = currElement.innerText;
+        currElement.innerText = "";
       }
     }
   }
+}
 
-  function undo() {
-    if (prevMatrix) {
-      matrix = prevMatrix;
-      updateGrid();
+function shiftRight(arr) {
+  for (let i = 0; i < 4; i++) {
+    for (let i = 2; i >= 0; i--) {
+      let currElement = arr[i].firstElementChild;
+      let nextElement = arr[i + 1].firstElementChild;
+      if (nextElement.innerText == 0) {
+        nextElement.innerText = currElement.innerText;
+        currElement.innerText = "";
+      }
+    }
+  }
+}
+
+function moveRight(row) {
+  shiftRight(row);
+
+  for (let i = 2; i >= 0; i--) {
+    let currElement = row[i].firstElementChild;
+    let nextElement = row[i + 1].firstElementChild;
+    let val = parseInt(currElement.innerText);
+    let nextVal = parseInt(nextElement.innerText);
+    if (val === nextVal && val !== 0) {
+      let newVal = val + nextVal;
+      nextElement.innerText = newVal;
+      currElement.innerText = "";
+      score = score + 2;
+      score_val.innerText = score;
+      if (newVal === 2048) {
+        gameOver("Win");
+      }
     }
   }
 
-  document.addEventListener("keydown", handleKeyPress);
+  shiftRight(row);
+}
 
-  initializeGame();
-});
+function moveLeft(row) {
+  shiftLeft(row);
+
+  for (let i = 1; i < 4; i++) {
+    let currElement = row[i].firstElementChild;
+    let prevElement = row[i - 1].firstElementChild;
+    let val = parseInt(currElement.innerText);
+    let prevVal = parseInt(prevElement.innerText);
+    if (val === prevVal && val !== 0) {
+      let newVal = val + prevVal;
+      prevElement.innerText = newVal;
+      currElement.innerText = "";
+      score = score + 2;
+      score_val.innerText = score;
+      if (newVal === 2048) {
+        gameOver("Win");
+      }
+    }
+  }
+
+  shiftLeft(row);
+}
+
+function updateAvailIndexes() {
+  matrixValues = getCurrentMatrixValues();
+  let grid = [];
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      if (matrixValues[i][j] == "") {
+        grid.push([i, j]);
+      }
+    }
+  }
+  return grid;
+}
+
+function generateNewBlock() {
+  if (availIndexes.length !== 0) {
+    let randInt = Math.floor(Math.random() * availIndexes.length);
+    let coords = availIndexes[randInt];
+    let randInt3 = Math.floor(Math.random() * options.length);
+    let ele = matrix[coords[0]][coords[1]].firstElementChild;
+    ele.innerText = options[randInt3];
+    updateColors();
+  }
+}
+
+function checkMatrixEquality(mat1, mat2) {
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      if (mat1[i][j] !== mat2[i][j]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function gameOver(status) {
+  if (status === "Win") {
+    result.innerText = "You Won!!!";
+    result.style.color = "rgb(78, 236, 144)";
+  } else {
+    result.innerText = "You Loose!!!";
+    result.style.color = "rgb(252, 51, 51)";
+  }
+}
+
+function updateColors() {
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      let elem = matrix[i][j].firstElementChild;
+      if (elem.innerText == 0) {
+        elem.parentElement.style.backgroundColor = colors[0];
+        elem.style.color = "black";
+      } else if (elem.innerText == 2) {
+        elem.style.color = "black";
+        elem.parentElement.style.backgroundColor = colors[1];
+      } else if (elem.innerText == 4) {
+        elem.style.color = "black";
+        elem.parentElement.style.backgroundColor = colors[2];
+      } else if (elem.innerText == 8) {
+        elem.style.color = "black";
+        elem.parentElement.style.backgroundColor = colors[3];
+      } else if (elem.innerText == 16) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[4];
+      } else if (elem.innerText == 32) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[5];
+      } else if (elem.innerText == 64) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[6];
+      } else if (elem.innerText == 128) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[7];
+      } else if (elem.innerText == 256) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[8];
+      } else if (elem.innerText == 512) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[9];
+      } else if (elem.innerText == 1024) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[10];
+      } else if (elem.innerText == 2048) {
+        elem.style.color = "white";
+        elem.parentElement.style.backgroundColor = colors[11];
+      }
+    }
+  }
+}
