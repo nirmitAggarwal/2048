@@ -1,89 +1,117 @@
 :root { 
-	--primary-text-color: #27374d; 
+    --primary-text-color: #ffffff;
+    --secondary-text-color: #ff6f61;
+    --background-color: #282c34;
+    --container-background: #3c3f41;
+    --grid-background: #4e5052;
+    --grid-item-border: #ffffff;
+    --rules-border: #ff6f61;
+    --rules-background: #3c3f41;
+    --box-shadow-color: rgba(0, 0, 0, 0.5);
 } 
 
 * { 
-	box-sizing: border-box; 
-	padding: 0%; 
-	margin: 0%; 
-	font-family: "Montserrat", sans-serif; 
-	font-family: "Ubuntu", sans-serif; 
+    box-sizing: border-box; 
+    padding: 0%; 
+    margin: 0%; 
+    font-family: "Montserrat", sans-serif; 
+    font-family: "Ubuntu", sans-serif; 
+    transition: all 0.3s ease;
 } 
 
 body { 
-	background-color: #dda15e; 
-	color: var(--primary-text-color); 
-	min-height: 100vh; 
+    background-color: var(--background-color); 
+    color: var(--primary-text-color); 
+    min-height: 100vh; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
 } 
 
 .container { 
-	width: 400px; 
-	display: flex; 
-	flex-direction: column; 
-	align-items: center; 
-	justify-content: center; 
-	position: absolute; 
-	top: 50%; 
-	left: 50%; 
-	transform: translate(-50%, -50%); 
+    width: 400px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    background-color: var(--container-background); 
+    padding: 20px; 
+    border-radius: 20px; 
+    box-shadow: 5px 5px 20px var(--box-shadow-color); 
 } 
 
 .score { 
-	width: 100%; 
-	display: flex; 
-	align-items: center; 
-	justify-content: space-evenly; 
-	flex-wrap: wrap; 
-	font-size: 2rem; 
-	text-align: center; 
-	padding: 10px; 
+    width: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-evenly; 
+    flex-wrap: wrap; 
+    font-size: 2rem; 
+    text-align: center; 
+    padding: 10px; 
+    background-color: var(--container-background); 
+    border-radius: 10px; 
 } 
 
 .score-title { 
-	width: 50%; 
+    width: 50%; 
+    color: var(--secondary-text-color); 
 } 
 
 .score-value { 
-	width: 50%; 
+    width: 50%; 
+    color: var(--primary-text-color); 
 } 
 
 .result { 
-	font-size: 2rem; 
-	text-align: center; 
-	padding: 10px; 
+    font-size: 2rem; 
+    text-align: center; 
+    padding: 10px; 
+    color: var(--primary-text-color); 
 } 
 
 .grid { 
-	display: grid; 
-	grid-template-columns: 1fr 1fr 1fr 1fr; 
-	grid-template-rows: 1fr 1fr 1fr 1fr; 
-	width: 400px; 
-	height: 400px; 
-	background-color: rgb(209, 207, 207); 
-	box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.753); 
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr 1fr; 
+    grid-template-rows: 1fr 1fr 1fr 1fr; 
+    width: 400px; 
+    height: 400px; 
+    background-color: var(--grid-background); 
+    box-shadow: 5px 5px 20px var(--box-shadow-color); 
+    border-radius: 20px; 
 } 
 
 .grid-item { 
-	border: 1px solid var(--primary-text-color); 
-	display: flex; 
-	align-items: center; 
-	justify-content: center; 
-	font-size: 2rem; 
+    border: 1px solid var(--grid-item-border); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 2rem; 
+    color: var(--primary-text-color); 
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 10px;
 } 
 
+.grid-item:hover {
+    background-color: var(--primary-text-color);
+    color: var(--secondary-text-color);
+}
+
 .rules { 
-	border: 2px solid white; 
-	padding: 20px; 
+    border: 2px solid var(--rules-border); 
+    padding: 20px; 
+    background-color: var(--rules-background); 
+    border-radius: 10px; 
+    color: var(--primary-text-color);
 } 
 
 .rules>h1 { 
-	width: 100%; 
-	font-size: 2rem; 
-	text-align: center; 
-	padding: 10px; 
+    width: 100%; 
+    font-size: 2rem; 
+    text-align: center; 
+    padding: 10px; 
 } 
 
 .rules-para { 
-	padding: 20px 10px; 
+    padding: 20px 10px; 
 }
-
