@@ -1,0 +1,29 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #faf8ef;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    background-color: #bbada0;
+    border-radius: 10px;
+}
+
+.tile {
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    border-radius: 5px;
+    line-height: 80px;
+    text-align: center;
+    font-size: 36px;
+    color: white;
+    font-weight: bold;
+}
